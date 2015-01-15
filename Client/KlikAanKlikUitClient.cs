@@ -13,11 +13,12 @@ namespace Glueware.KlikAanKlikUit.Client
 {
     public class KlikAanKlikUitClient
     {
-        private readonly string _requestUri;
+        private readonly Uri _requestUri;
 
-        public KlikAanKlikUitClient(string uri)
+        public KlikAanKlikUitClient(string host)
         {
-            _requestUri = uri;
+            var hostAndPort = host.Contains(":") ? host : host + ":8080";
+            _requestUri = new Uri(string.Format("http://{0}/soap/Iklaklu", hostAndPort));
         }
 
         public Task<int> GetRoomCount()

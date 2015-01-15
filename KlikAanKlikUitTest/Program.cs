@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Glueware.KlikAanKlikUit.Client;
 
@@ -6,14 +7,16 @@ namespace KlikAanKlikUitTest
 {
     static class Program
     {
-        static void Main()
+        static void Main(string[] args)
         {
-            MainAsync().Wait();
+            if (!args.Any())
+                Console.WriteLine("Usage: KlikAanKlikUitTest <host_optional_port>. I'll crash now");
+            MainAsync(args.First()).Wait();
         }
 
-        static async Task MainAsync()
+        static async Task MainAsync( string host)
         {
-            var kanaal = new KlikAanKlikUitClient("http://home.debb.nl:18080/soap/Iklaklu");
+            var kanaal = new KlikAanKlikUitClient(host);
 
             var shit = await kanaal.GetRooms();
             foreach (var room in shit)
