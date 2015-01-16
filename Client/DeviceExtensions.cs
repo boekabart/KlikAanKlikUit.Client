@@ -6,24 +6,39 @@ namespace Glueware.KlikAanKlikUit.Client
 {
     public static class DeviceExtensions
     {
-        public static Task TurnOn(this Device dev, KlikAanKlikUitClient tpc)
+        public static KlikAanKlikUitClient KlikAanKlikUitClient(this Device dev)
         {
-            return tpc.TurnOn(dev.RoomNo, dev.DeviceNo);
+            return new KlikAanKlikUitClient(dev.TpcUri);
         }
 
-        public static Task TurnOff(this Device dev, KlikAanKlikUitClient tpc)
+        public static Task TurnOn(this Device dev)
         {
-            return tpc.TurnOff(dev.RoomNo, dev.DeviceNo);
+            return dev.KlikAanKlikUitClient().TurnOn(dev.RoomNo, dev.DeviceNo);
         }
 
-        public static Task TurnOn(this IEnumerable<Device> devs, KlikAanKlikUitClient tpc)
+        public static Task TurnOff(this Device dev)
         {
-            return Task.WhenAll(devs.Select(d => TurnOn((Device) d, tpc)));
+            return dev.KlikAanKlikUitClient().TurnOff(dev.RoomNo, dev.DeviceNo);
         }
 
-        public static Task TurnOff(this IEnumerable<Device> devs, KlikAanKlikUitClient tpc)
+        public static Task Dim(this Device dev, int stand)
         {
-            return Task.WhenAll(devs.Select(d => d.TurnOff(tpc)));
+            return dev.KlikAanKlikUitClient().Dim(dev.RoomNo, dev.DeviceNo, stand);
+        }
+
+        public static Task WakeUpDim(this Device dev)
+        {
+            return dev.KlikAanKlikUitClient().WakeUpDim(dev.RoomNo, dev.DeviceNo);
+        }
+
+        public static Task TurnOn(this IEnumerable<Device> devs)
+        {
+            return Task.WhenAll(devs.Select(TurnOn));
+        }
+
+        public static Task TurnOff(this IEnumerable<Device> devs)
+        {
+            return Task.WhenAll(devs.Select(TurnOff));
         }
     }
 }

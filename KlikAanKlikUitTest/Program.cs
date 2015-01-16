@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Glueware.KlikAanKlikUit.Client;
@@ -16,26 +17,30 @@ namespace KlikAanKlikUitTest
 
         static async Task MainAsync( string host)
         {
-            var kanaal = new KlikAanKlikUitClient(host);
+            var client = new KlikAanKlikUitClient(host);
 
-            var shit = await kanaal.GetRooms();
+            var scenesT = client.GetScenes();
+            var shit = await client.GetRooms();
+            var scenes = await scenesT;
             foreach (var room in shit)
                 room.Nice();
-/*
-            Console.WriteLine("Go!");
-            await shit.TurnAllOn(kanaal);
-            Console.WriteLine("All On");
-*/
+            foreach (var sc in scenes)
+                sc.Nice();
+            /*
+                        Console.WriteLine("Go!");
+                        await shit.TurnAllOn();
+                        Console.WriteLine("All On");
+            */
             await Task.Delay(5000);
             Console.WriteLine("Go!");
-            await shit.TurnAllOff(kanaal);
+            await shit.TurnAllOff();
             Console.WriteLine("All Off");
 
 /*
             await Task.Delay(5000);
             Console.WriteLine("Go!");
             var allDevices = shit.SelectMany(r => r.Devices);
-            await allDevices.Where(dev => dev.Name.ToLowerInvariant().Contains("schemer")).TurnOn(kanaal);
+            await allDevices.Where(dev => dev.Name.ToLowerInvariant().Contains("schemer")).TurnOn();
             Console.WriteLine("Schemers On");
 */
         }
@@ -46,11 +51,22 @@ namespace KlikAanKlikUitTest
             foreach (var dev in room.Devices)
                 dev.Nice();
         }
-        public static void Nice(this Device room)
-        {
-            Console.WriteLine("> " +room.Name);
 
+        public static void Nice(this Scene sc)
+        {
+            Console.WriteLine("= " + sc.Name);
         }
 
+        public static void Nice(this Device device)
+        {
+            Console.WriteLine("> " +device.Name);
+            try
+            {
+                File.WriteAllBytes(string.Format(@"c:\d\temp\{0}_{1}.bmp", device.Room.Name, device.Name), device.Image);
+            }
+            catch
+            {
+            }
+        }
     }
 }

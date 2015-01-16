@@ -6,24 +6,29 @@ namespace Glueware.KlikAanKlikUit.Client
 {
     public static class RoomExtensions
     {
-        public static Task TurnAllOn(this Room room, KlikAanKlikUitClient tpc)
+        public static KlikAanKlikUitClient KlikAanKlikUitClient(this Room room)
         {
-            return Task.WhenAll(room.Devices.TurnOn(tpc));
+            return new KlikAanKlikUitClient(room.TpcUri);
         }
 
-        public static Task TurnAllOn(this IEnumerable<Room> rooms, KlikAanKlikUitClient tpc)
+        public static Task TurnAllOn(this Room room)
         {
-            return Task.WhenAll(rooms.Select(r => TurnAllOn((Room) r, tpc)));
+            return room.Devices.TurnOn();
         }
 
-        public static Task TurnAllOff(this Room room, KlikAanKlikUitClient tpc)
+        public static Task TurnAllOn(this IEnumerable<Room> rooms)
         {
-            return Task.WhenAll(room.Devices.TurnOff(tpc));
+            return Task.WhenAll(rooms.Select(TurnAllOn));
         }
 
-        public static Task TurnAllOff(this IEnumerable<Room> rooms, KlikAanKlikUitClient tpc)
+        public static Task TurnAllOff(this Room room)
         {
-            return Task.WhenAll(rooms.Select(r => r.TurnAllOff(tpc)));
+            return room.Devices.TurnOff();
+        }
+
+        public static Task TurnAllOff(this IEnumerable<Room> rooms)
+        {
+            return Task.WhenAll(rooms.Select(TurnAllOff));
         }
     }
 }

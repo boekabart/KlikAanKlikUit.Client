@@ -13,13 +13,13 @@ namespace Glueware.KlikAanKlikUit.Client
 {
     public class KlikAanKlikUitClient
     {
-        private readonly Uri _requestUri;
-
         public KlikAanKlikUitClient(string host)
         {
             var hostAndPort = host.Contains(":") ? host : host + ":8080";
-            _requestUri = new Uri(string.Format("http://{0}/soap/Iklaklu", hostAndPort));
+            Uri = new Uri(string.Format("http://{0}/soap/Iklaklu", hostAndPort));
         }
+
+        public Uri Uri { get; private set; }
 
         public Task<int> GetRoomCount()
         {
@@ -41,6 +41,11 @@ namespace Glueware.KlikAanKlikUit.Client
             return CallForString("getappname", "aRoom", roomNo, "aApp", devNo);
         }
 
+        public Task<bool> CanDeviceDim(int roomNo, int devNo)
+        {
+            return CallForBool("isappdimmable", "aRoom", roomNo, "aApp", devNo);
+        }
+
         public async Task<byte[]> GetDeviceImage(int roomNo, int devNo)
         {
             return
@@ -58,6 +63,11 @@ namespace Glueware.KlikAanKlikUit.Client
             return int.Parse(await CallForString(func, parms));
         }
 
+        private async Task<bool> CallForBool(string func, params object[] parms)
+        {
+            return bool.Parse(await CallForString(func, parms));
+        }
+
         private async Task<string> CallForString(string func, params object[] parms)
         {
             var callElem = new XElement(NsKiKuIf + func, ArgElements(parms));
@@ -73,7 +83,7 @@ namespace Glueware.KlikAanKlikUit.Client
                     content.Headers.ContentType = new MediaTypeHeaderValue("text/xml");
                     content.Headers.Add("SOAPAction", "urn:klakluIntf-Iklaklu#" + func);
 
-                    var response = await wc.PostAsync(_requestUri, content);
+                    var response = await wc.PostAsync(Uri, content);
                     response.EnsureSuccessStatusCode();
                     var responseDoc = XDocument.Load(await response.Content.ReadAsStreamAsync());
                     var responseElem = responseDoc.Descendants(NsKiKu + "TWebserverResponse").First();
@@ -106,6 +116,31 @@ namespace Glueware.KlikAanKlikUit.Client
         public Task TurnOff(int roomNo, int deviceNo)
         {
             return CallForString("apparaatUit", "aRoom", roomNo, "aApp", deviceNo);
+        }
+
+        public Task Dim(int roomNo, int deviceNo, int level)
+        {
+            return CallForString("apparaatUit", "aRoom", roomNo, "aApp", deviceNo, "dimstand", level);
+        }
+
+        public Task WakeUpDim(int roomNo, int deviceNo)
+        {
+            return CallForString("apparaatWakeUp", "aRoom", roomNo, "aApp", deviceNo);
+        }
+
+        public Task<int> GetSceneCount()
+        {
+            return CallForInt("getscenecount");
+        }
+
+        public Task<string> GetSceneName(int sceneNo)
+        {
+            return CallForString("getscenename", "aScene", sceneNo);
+        }
+
+        public Task ActivateScene(int sceneNo)
+        {
+            return CallForString("sceneActivate", "aScene", sceneNo);
         }
     }
 }
