@@ -56,17 +56,15 @@ namespace Glueware.KlikAanKlikUit.Client
         public static async Task<Device> GetDevice(this KlikAanKlikUitClient tpc, int roomNo, int devNo)
         {
             var nameTask = tpc.GetDeviceName(roomNo, devNo);
-            var imageTask = tpc.GetDeviceImage(roomNo, devNo);
             var dimmableTask = tpc.CanDeviceDim(roomNo, devNo);
-            return new Device { DeviceNo = devNo, RoomNo = roomNo, Image = await imageTask, Name = await nameTask, Dimmable = await dimmableTask, TpcUri = tpc.Uri.ToString() };
+            return new Device { DeviceNo = devNo, RoomNo = roomNo, Name = await nameTask, Dimmable = await dimmableTask, TpcUri = tpc.Uri.ToString() };
         }
 
         public static async Task<Device> GetDevice(this KlikAanKlikUitClient tpc, Room room, int devNo)
         {
             var nameTask = tpc.GetDeviceName(room.RoomNo, devNo);
-            var imageTask = tpc.GetDeviceImage(room.RoomNo, devNo);
             var dimmableTask = tpc.CanDeviceDim(room.RoomNo, devNo);
-            return new Device { DeviceNo = devNo, RoomNo = room.RoomNo, Room = room, Image = await imageTask, Name = await nameTask, Dimmable = await dimmableTask, TpcUri = tpc.Uri.ToString()};
+            return new Device { DeviceNo = devNo, RoomNo = room.RoomNo, Room = room, Name = await nameTask, Dimmable = await dimmableTask, TpcUri = tpc.Uri.ToString()};
         }
 
         public static async Task<Room> GetRoom(this KlikAanKlikUitClient tpc, int roomNo)

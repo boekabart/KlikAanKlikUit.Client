@@ -22,8 +22,7 @@ namespace KlikAanKlikUitTest
             var scenesT = client.GetScenes();
             var shit = await client.GetRooms();
             var scenes = await scenesT;
-            foreach (var room in shit)
-                room.Nice();
+            await Task.WhenAll(shit.Select(Nice));
             foreach (var sc in scenes)
                 sc.Nice();
             /*
@@ -45,11 +44,10 @@ namespace KlikAanKlikUitTest
 */
         }
 
-        public static void Nice(this Room room)
+        public static async Task Nice(this Room room)
         {
             Console.WriteLine("*" + room.Name);
-            foreach (var dev in room.Devices)
-                dev.Nice();
+            await Task.WhenAll(room.Devices.Select(Nice));
         }
 
         public static void Nice(this Scene sc)
@@ -57,12 +55,12 @@ namespace KlikAanKlikUitTest
             Console.WriteLine("= " + sc.Name);
         }
 
-        public static void Nice(this Device device)
+        public static async Task Nice(this Device device)
         {
             Console.WriteLine("> " +device.Name);
             try
             {
-                File.WriteAllBytes(string.Format(@"c:\d\temp\{0}_{1}.bmp", device.Room.Name, device.Name), device.Image);
+                File.WriteAllBytes(string.Format(@"c:\d\temp\{0}_{1}.bmp", device.Room.Name, device.Name), await device.GetImage());
             }
             catch
             {

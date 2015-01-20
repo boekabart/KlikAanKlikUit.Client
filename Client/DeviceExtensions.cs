@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -39,6 +40,11 @@ namespace Glueware.KlikAanKlikUit.Client
         public static Task TurnOff(this IEnumerable<Device> devs)
         {
             return Task.WhenAll(devs.Select(TurnOff));
+        }
+
+        public static Task<byte[]> GetImage(this Device dev)
+        {
+            return dev.KlikAanKlikUitClient().GetDeviceImage(dev.RoomNo, dev.DeviceNo);
         }
     }
 }
