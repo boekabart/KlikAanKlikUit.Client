@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>device App</title>
+</head>
+<body>
+
+    <div>
+        <h2>All devices</h2>
+        <div id="rooms">Loading...</div>
+    </div>
+
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Send an AJAX request
+            $.getJSON('api/rooms/devices')
+                .done(function(data) {
+                    // On success, 'data' contains a list of rooms.
+                    var roomDiv = $('#rooms');
+                    roomDiv.clear();
+                    $.each(data, function(key, room) {
+                        addRoom(roomDiv, room);
+                    });
+                });
+        });
+
+        function addRoom(roomsDiv, room) {
+            var roomDiv = $('div')
+                //.attr('id', 'room' + room.Id)
+                .appendTo(roomsDiv);
+            $('div', { text: room.Name}).appendTo(roomDiv);
+            var devicesDiv = $('div').appendTo(roomDiv);
+            $.each(room.Devices, function (key, device) {
+                addDevice(devicesDiv, device);
+            });
+        }
+
+        function addDevice(devicesDiv, device) {
+            // Add a list item for the device.
+            var li = $('<div>').attr('id', 'device' + device.Id);
+            var img = $('<img>')
+                .attr('src', 'api/devices/' + device.Id + '/image')
+                .attr('alt', formatDevice(device))
+                .attr('onclick', 'deviceOn(' + device.Id + ');');
+            img.appendTo(li);
+            var img2 = $('<img>')
+                .attr('src', 'api/devices/' + device.Id + '/image')
+                .attr('alt', formatDevice(device))
+                .attr('onclick', 'deviceOff(' + device.Id + ');');
+            img2.appendTo(li);
+            $('<span>', { text: '?' }).attr('id', 'deviceStatus' + device.Id).appendTo(li);
+            $('<span>', { text: formatDevice(device) }).appendTo(li);
+            li.appendTo(devicesDiv);
+        }
+
+        function formatDevice(device) {
+            return device.Room + ' ' + device.Name + '(' + device.Id + ')';
+        }
+
+        function deviceOn(devId) {
+            $.post(uri + '/' + devId + '/on')
+             .done( );
+        }
+
+        function find() {
+            var id = $('#prodId').val();
+            $.getJSON(uri + '/' + id)
+                .done(function(data) {
+                    $('#device').text(formatDevice(data));
+                })
+                .fail(function(jqXHR, textStatus, err) {
+                    $('#device').text('Error: ' + err);
+                });
+        }
+    </script>
+</body>
+</html>
