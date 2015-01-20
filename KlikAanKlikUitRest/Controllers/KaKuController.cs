@@ -17,30 +17,6 @@ using Room = KlikAanKlikUitRest.Models.Room;
 
 namespace KlikAanKlikUitRest.Controllers
 {
-    class ByteResult : IHttpActionResult
-    {
-        private readonly byte[] _bytes;
-        private readonly string _contentType;
-
-        public ByteResult(byte[] bytes, string contentType)
-        {
-            _bytes = bytes;
-            _contentType = contentType;
-        }
-
-        public async Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken)
-        {
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new ByteArrayContent(_bytes)
-            };
-
-            var contentType = _contentType;
-            response.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
-
-            return response;
-        }
-    }
     public class KaKuController : ApiController
     {
         private static KlikAanKlikUitClient Client
@@ -71,14 +47,14 @@ namespace KlikAanKlikUitRest.Controllers
         }
 
         [Route("api/devices/{id}/image")]
-        public async Task<IHttpActionResult> GetDeviceImage(int id)
+        public async Task<HttpResponseMessage> GetDeviceImage(int id)
         {
             var room = id/100;
             var device = id%100;
             var bytes = await Client.GetDeviceImage(room, device);
             if (bytes == null || bytes.Length == 0)
-                return NotFound();
-            return new ByteResult(bytes, "image/bmp");
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            return new HttpResponseMessage { Content = new ByteArrayContent(bytes) };
         }
 
         [Route("api/devices/{id}/on")]
