@@ -1,4 +1,6 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
+using Glueware.KlikAanKlikUit.Client;
 
 namespace KlikAanKlikUitRest.Models
 {
@@ -9,10 +11,16 @@ namespace KlikAanKlikUitRest.Models
         public Device[] Devices { get; set; }
     }
 
+    public class Scene
+    {
+        public string Name { get; set; }
+        public int SceneNo { get; set; }
+    }
+
     public class Device
     {
         public string Name { get; set; }
-        public string Room { get; set; }
+        public string RoomName { get; set; }
         public int Id { get; set; }
         public bool Dimmable { get; set; }
     }
@@ -35,12 +43,22 @@ namespace KlikAanKlikUitRest.Models
             return deviceId % Multiplier;
         }
 
-        static public Room ToApiRoom(this Glueware.KlikAanKlikUit.Client.Room src)
+        static public async Task<Room> ToApiRoomWithDevices(this Glueware.KlikAanKlikUit.Client.Room src)
         {
             return new Room
             {
                 Name = src.Name,
-                Devices = src.Devices.Select(ToApiDevice).ToArray()
+                RoomNo = src.RoomNo,
+                Devices = (await src.GetDevices()).Select(ToApiDevice).ToArray()
+            };
+        }
+
+        static public Scene ToApiScene(this Glueware.KlikAanKlikUit.Client.Scene src)
+        {
+            return new Scene
+            {
+                Name = src.Name,
+                SceneNo = src.SceneNo,
             };
         }
 
@@ -49,7 +67,7 @@ namespace KlikAanKlikUitRest.Models
             return new Device
             {
                 Name = src.Name,
-                Room = src.Room.Name,
+                RoomName = src.Room.Name,
                 Dimmable = src.Dimmable,
                 Id = CalculateApiDeviceId(src.RoomNo, src.DeviceNo)
             };

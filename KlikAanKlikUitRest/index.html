@@ -1,7 +1,9 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>device App</title>
+    <meta name='HandheldFriendly' content='true' />
+    <meta name='viewport' content='target-densitydpi=device-dpi ,width=device-width, height=device-height, user-scalable=no' />
+    <title>KlikAanKlikUit</title>
 </head>
 <body>
 
@@ -9,28 +11,47 @@
         <h2>All devices</h2>
         <div id="rooms">Loading...</div>
     </div>
+    <style type="text/css">
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        img {
+            margin: 0;
+            padding: 0;
+            vertical-align: middle;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 0;
+        }
+    </style>
 
     <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Send an AJAX request
             $.getJSON('api/rooms/devices')
-                .done(function(data) {
+                .done(function (data) {
                     // On success, 'data' contains a list of rooms.
                     var roomDiv = $('#rooms');
-                    roomDiv.clear();
-                    $.each(data, function(key, room) {
+                    roomDiv.empty();
+                    $.each(data, function (key, room) {
                         addRoom(roomDiv, room);
                     });
                 });
         });
 
         function addRoom(roomsDiv, room) {
-            var roomDiv = $('div')
-                //.attr('id', 'room' + room.Id)
+            var roomDiv = $('<div>', { id: 'room' + room.Id })
                 .appendTo(roomsDiv);
-            $('div', { text: room.Name}).appendTo(roomDiv);
-            var devicesDiv = $('div').appendTo(roomDiv);
+            $('<h3>', { text: room.Name }).appendTo($('<div>').appendTo(roomDiv));
+            var devicesDiv = $('<div>').appendTo(roomDiv);
             $.each(room.Devices, function (key, device) {
                 addDevice(devicesDiv, device);
             });
@@ -38,40 +59,53 @@
 
         function addDevice(devicesDiv, device) {
             // Add a list item for the device.
-            var li = $('<div>').attr('id', 'device' + device.Id);
-            var img = $('<img>')
-                .attr('src', 'api/devices/' + device.Id + '/image')
+            var li = $('<table>', { id: 'device' + device.Id }).css({ width: '320px' });
+            $('<td>', { text: formatDevice(device), colspan: 3 }).appendTo($('<tr>').appendTo($('<thead>').appendTo(li)));
+            var ro = $('<tr>').appendTo(li);
+            $('<img>', { src: deviceImageUri(device.Id, 128) })
                 .attr('alt', formatDevice(device))
-                .attr('onclick', 'deviceOn(' + device.Id + ');');
-            img.appendTo(li);
-            var img2 = $('<img>')
-                .attr('src', 'api/devices/' + device.Id + '/image')
+                .attr('onclick', 'deviceOn(' + device.Id + ');')
+				.css({ width: '100%' })
+                .appendTo($('<td>').css({ width: '40%' })
+                    .appendTo(ro));
+
+            $('<td>', { text: '?', id: 'deviceStatus' + device.Id }).css({ width: '20%' }).css('text-align', 'center').appendTo(ro);
+
+            $('<img>', { src: deviceImageUri(device.Id, 32) })
                 .attr('alt', formatDevice(device))
-                .attr('onclick', 'deviceOff(' + device.Id + ');');
-            img2.appendTo(li);
-            $('<span>', { text: '?' }).attr('id', 'deviceStatus' + device.Id).appendTo(li);
-            $('<span>', { text: formatDevice(device) }).appendTo(li);
+                .attr('onclick', 'deviceOff(' + device.Id + ');')
+                .css("-webkit-filter", 'grayscale(50%) brightness(50%)')
+                .css("filter", 'grayscale(50%) brightness(50%)')
+				.css({ width: '100%' })
+                .appendTo($('<td>').css({ width: '40%' })
+                    .appendTo(ro));
+
             li.appendTo(devicesDiv);
         }
-
+        function deviceImageUri(deviceId, width) {
+            return 'api/devices/' + deviceId + '/image';
+            return 'img/devices/' + deviceId + '/image' + deviceId + '.jpg?w=' + width;
+        }
         function formatDevice(device) {
-            return device.Room + ' ' + device.Name + '(' + device.Id + ')';
+            return device.Name;
+        }
+
+        function deviceStatus(devId, status) {
+            $('#deviceStatus' + devId).text(status);
         }
 
         function deviceOn(devId) {
-            $.post(uri + '/' + devId + '/on')
-             .done( );
+            deviceStatus(devId, '...');
+            $.post('api/devices/' + devId + '/on')
+            .done(function () { deviceStatus(devId, 'on'); })
+            .fail(function () { deviceStatus(devId, 'err'); });
         }
 
-        function find() {
-            var id = $('#prodId').val();
-            $.getJSON(uri + '/' + id)
-                .done(function(data) {
-                    $('#device').text(formatDevice(data));
-                })
-                .fail(function(jqXHR, textStatus, err) {
-                    $('#device').text('Error: ' + err);
-                });
+        function deviceOff(devId) {
+            deviceStatus(devId, '...');
+            $.post('api/devices/' + devId + '/off')
+            .done(function () { deviceStatus(devId, 'off'); })
+            .fail(function () { deviceStatus(devId, 'err'); });
         }
     </script>
 </body>

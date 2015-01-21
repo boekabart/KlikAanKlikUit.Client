@@ -47,7 +47,7 @@ namespace KlikAanKlikUitTest
         public static async Task Nice(this Room room)
         {
             Console.WriteLine("*" + room.Name);
-            await Task.WhenAll(room.Devices.Select(Nice));
+            await Task.WhenAll((await room.GetDevices()).Select(Nice));
         }
 
         public static void Nice(this Scene sc)

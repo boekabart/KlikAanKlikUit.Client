@@ -78,9 +78,9 @@ namespace Glueware.KlikAanKlikUit.Client
             var nameTask = tpc.GetRoomName(roomNo);
             var devicesTask = tpc.GetDevices(retVal);
             retVal.Name = await nameTask;
-            retVal.Devices = await devicesTask;
+            retVal.CachedDevices = await devicesTask;
 
-            foreach (var dev in retVal.Devices)
+            foreach (var dev in retVal.CachedDevices)
                 dev.Room = retVal;
 
             return retVal;

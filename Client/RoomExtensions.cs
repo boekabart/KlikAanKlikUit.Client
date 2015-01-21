@@ -13,7 +13,7 @@ namespace Glueware.KlikAanKlikUit.Client
 
         public static Task TurnAllOn(this Room room)
         {
-            return room.Devices.TurnOn();
+            return room.CachedDevices.TurnOn();
         }
 
         public static Task TurnAllOn(this IEnumerable<Room> rooms)
@@ -23,12 +23,17 @@ namespace Glueware.KlikAanKlikUit.Client
 
         public static Task TurnAllOff(this Room room)
         {
-            return room.Devices.TurnOff();
+            return room.CachedDevices.TurnOff();
         }
 
         public static Task TurnAllOff(this IEnumerable<Room> rooms)
         {
             return Task.WhenAll(rooms.Select(TurnAllOff));
+        }
+
+        public static async Task<Device[]> GetDevices(this Room dev)
+        {
+            return dev.CachedDevices = dev.CachedDevices ?? await dev.KlikAanKlikUitClient().GetDevices(dev);
         }
     }
 }
