@@ -1,131 +1,133 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta name='HandheldFriendly' content='true' />
-    <meta name='viewport' content='target-densitydpi=device-dpi ,width=device-width, height=device-height, user-scalable=no' />
+    <meta name='HandheldFriendly' content='true'/>
+    <meta name='viewport' content='target-densitydpi=device-dpi ,width=device-width, height=device-height, user-scalable=no'/>
     <title>KlikAanKlikUit</title>
 </head>
 <body>
 
-    <div>
-        <h2>All devices</h2>
-        <div id="rooms">Loading...</div>
-    </div>
-    <style type="text/css">
-        body {
-            padding: 0;
-            margin: 0;
-        }
+<div>
+    <h2>All devices</h2>
+    <div id="rooms">Loading...</div>
+</div>
+<style type="text/css">
+    body {
+        padding: 0;
+        margin: 0;
+    }
 
-        img {
-            margin: 0;
-            padding: 0;
-            vertical-align: middle;
-        }
+    img {
+        margin: 0;
+        padding: 0;
+        vertical-align: middle;
+    }
 
-        table {
-            border-collapse: collapse;
-        }
+    table {
+        border-collapse: collapse;
+    }
 
-        td {
-            padding: 0;
-        }
-    </style>
+    td {
+        padding: 0;
+    }
+</style>
 
-    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            // Send an AJAX request
-            $.getJSON('api/rooms/devices')
-                .done(function (data) {
-                    // On success, 'data' contains a list of rooms.
-                    var roomDiv = $('#rooms');
-                    roomDiv.empty();
-                    $.each(data, function (key, room) {
-                        addRoom(roomDiv, room);
-                    });
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Send an AJAX request
+        $.getJSON('api/rooms/devices')
+            .done(function(data) {
+                // On success, 'data' contains a list of rooms.
+                var roomDiv = $('#rooms');
+                roomDiv.empty();
+                $.each(data, function(key, room) {
+                    addRoom(roomDiv, room);
                 });
-        });
-
-        function addRoom(roomsDiv, room) {
-            var roomDiv = $('<div>', { id: 'room' + room.Id })
-                .appendTo(roomsDiv);
-            $('<h3>', { text: room.Name }).appendTo($('<div>').appendTo(roomDiv));
-            var devicesDiv = $('<div>').appendTo(roomDiv);
-            $.each(room.Devices, function (key, device) {
-                addDevice(devicesDiv, device);
             });
-        }
+    });
 
-        function addDevice(devicesDiv, device) {
-            // Add a list item for the device.
-            var li = $('<table>', { id: 'device' + device.Id }).css({ width: '320px' });
-            $('<td>', { text: formatDevice(device), colspan: 3 }).appendTo($('<tr>').appendTo($('<thead>').appendTo(li)));
-            var ro = $('<tr>').appendTo(li);
-            
-            var deviceOnAction = device.Dimmable ? 'deviceDim(' + device.Id + ', 16);' : 'deviceOn(' + device.Id + ');';
-            var deviceOffAction = 'deviceOff(' + device.Id + ');';
+    function addRoom(roomsDiv, room) {
+        var roomDiv = $('<div>', { id: 'room' + room.Id })
+            .appendTo(roomsDiv);
+        $('<h3>', { text: room.Name }).appendTo($('<div>').appendTo(roomDiv));
+        var devicesDiv = $('<div>').appendTo(roomDiv);
+        $.each(room.Devices, function(key, device) {
+            addDevice(devicesDiv, device);
+        });
+    }
 
-            $('<img>', { src: deviceImageUri(device.Id, 128) })
-                .attr('alt', formatDevice(device))
-                .attr('onclick', deviceOnAction)
-				.css({ width: '100%' })
-                .appendTo($('<td>').css({ width: '40%' })
-                    .appendTo(ro));
-            $('<td>', { text: '?', id: 'deviceStatus' + device.Id }).css({ width: '20%' }).css('text-align', 'center').appendTo(ro);
+    function addDevice(devicesDiv, device) {
+        // Add a list item for the device.
+        var li = $('<table>', { id: 'device' + device.Id }).css({ width: '320px' });
+        $('<td>', { text: formatDevice(device), colspan: 3 }).appendTo($('<tr>').appendTo($('<thead>').appendTo(li)));
+        var ro = $('<tr>').appendTo(li);
+
+        var deviceOnAction = device.Dimmable ? 'deviceDim(' + device.Id + ', 16);' : 'deviceOn(' + device.Id + ');';
+        var deviceOffAction = 'deviceOff(' + device.Id + ');';
+
+        $('<img>', { src: deviceImageUri(device.Id, 128) })
+            .attr('alt', formatDevice(device))
+            .attr('onclick', deviceOnAction)
+            .css({ width: '100%' })
+            .appendTo($('<td>').css({ width: '40%' })
+                .appendTo(ro));
+        $('<td>', { text: '?', id: 'deviceStatus' + device.Id }).css({ width: '20%' }).css('text-align', 'center').appendTo(ro);
+        $('<img>', { src: deviceImageUri(device.Id, 32) })
+            .attr('alt', formatDevice(device))
+            .attr('onclick', deviceOffAction)
+            .css("-webkit-filter", 'grayscale(50%) brightness(50%)')
+            .css("filter", 'grayscale(50%) brightness(50%)')
+            .css({ width: '100%' })
+            .appendTo($('<td>').css({ width: device.Dimmable ? '20%' : '40%' })
+                .appendTo(ro));
+        if (device.Dimmable) {
             $('<img>', { src: deviceImageUri(device.Id, 32) })
                 .attr('alt', formatDevice(device))
-                .attr('onclick', deviceOffAction)
-                .css("-webkit-filter", 'grayscale(50%) brightness(50%)')
-                .css("filter", 'grayscale(50%) brightness(50%)')
-				.css({ width: '100%' })
-                .appendTo($('<td>').css({ width: device.Dimmable?'20%':'40%' })
+                .attr('onclick', 'deviceDim(' + device.Id + ', 7);')
+                .css("-webkit-filter", 'grayscale(25%) brightness(75%)')
+                .css("filter", 'grayscale(25%) brightness(75%)')
+                .css({ width: '100%' })
+                .appendTo($('<td>').css({ width: '20%' })
                     .appendTo(ro));
-            if (device.Dimmable) {
-                $('<img>', { src: deviceImageUri(device.Id, 32) })
-                    .attr('alt', formatDevice(device))
-                    .attr('onclick', 'deviceDim(' + device.Id + ', 7);')
-                    .css("-webkit-filter", 'grayscale(25%) brightness(75%)')
-                    .css("filter", 'grayscale(25%) brightness(75%)')
-                    .css({ width: '100%' })
-                    .appendTo($('<td>').css({ width: '20%' })
-                        .appendTo(ro));
-            }
-
-            li.appendTo(devicesDiv);
-        }
-        function deviceImageUri(deviceId, width) {
-            //return 'api/devices/' + deviceId + '/image';
-            return 'img/devices/' + deviceId + '/image' + deviceId + '.jpg?w=' + width;
-        }
-        function formatDevice(device) {
-            return device.Name;
         }
 
-        function deviceStatus(devId, status) {
-            $('#deviceStatus' + devId).text(status);
-        }
+        li.appendTo(devicesDiv);
+    }
 
-        function deviceOn(devId) {
-            deviceStatus(devId, '...');
-            $.post('api/devices/' + devId + '/on')
-            .done(function () { deviceStatus(devId, 'on'); })
-            .fail(function () { deviceStatus(devId, 'err'); });
-        }
+    function deviceImageUri(deviceId, width) {
+        //return 'api/devices/' + deviceId + '/image';
+        return 'img/devices/' + deviceId + '/image' + deviceId + '.jpg?w=' + width;
+    }
 
-        function deviceDim(devId, level) {
-            deviceStatus(devId, '...');
-            $.post('api/devices/' + devId + '/dim/' + level)
-            .done(function () { deviceStatus(devId, level); })
-            .fail(function () { deviceStatus(devId, 'err'); });
-        }
+    function formatDevice(device) {
+        return device.Name;
+    }
 
-        function deviceOff(devId) {
-            deviceStatus(devId, '...');
-            $.post('api/devices/' + devId + '/off')
-            .done(function () { deviceStatus(devId, 'off'); })
-            .fail(function () { deviceStatus(devId, 'err'); });
-        }
-    </script>
+    function deviceStatus(devId, status) {
+        $('#deviceStatus' + devId).text(status);
+    }
+
+    function deviceOn(devId) {
+        deviceStatus(devId, '...');
+        $.post('api/devices/' + devId + '/on')
+            .done(function() { deviceStatus(devId, 'on'); })
+            .fail(function() { deviceStatus(devId, 'err'); });
+    }
+
+    function deviceDim(devId, level) {
+        deviceStatus(devId, '...');
+        $.post('api/devices/' + devId + '/dim/' + level)
+            .done(function() { deviceStatus(devId, level); })
+            .fail(function() { deviceStatus(devId, 'err'); });
+    }
+
+    function deviceOff(devId) {
+        deviceStatus(devId, '...');
+        $.post('api/devices/' + devId + '/off')
+            .done(function() { deviceStatus(devId, 'off'); })
+            .fail(function() { deviceStatus(devId, 'err'); });
+    }
+</script>
 </body>
 </html>
