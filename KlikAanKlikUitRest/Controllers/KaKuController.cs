@@ -147,5 +147,15 @@ namespace KlikAanKlikUitRest.Controllers
             await Client.Dim(room, device, level);
             return Ok();
         }
+
+        [Route("api/alloff")]
+        [HttpPost]
+        public async Task<IHttpActionResult> AllOff()
+        {
+            var devices = await GetAllDevices();
+            var l = (from dev in devices select dev.Id into id let room = id.RoomNo() let device = id.DeviceNo() select Client.TurnOff(room, device)).ToList();
+            await Task.WhenAll(l);
+            return Ok();
+        }
     }
 }
