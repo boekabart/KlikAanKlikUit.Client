@@ -8,7 +8,7 @@
 <body>
 
 <div>
-    <h2>All devices</h2>
+    <h2 onclick="allOff();">All devices</h2>
     <div id="rooms">Loading...</div>
 </div>
 <style type="text/css">
@@ -127,6 +127,13 @@
         $.post('api/devices/' + devId + '/off')
             .done(function() { deviceStatus(devId, 'off'); })
             .fail(function() { deviceStatus(devId, 'err'); });
+    }
+
+    function allOff() {
+        $.post('api/alloff')
+            //.done(function () { deviceStatus(devId, level); })
+            //.fail(function () { deviceStatus(devId, 'err'); })
+            ;
     }
 </script>
 </body>
