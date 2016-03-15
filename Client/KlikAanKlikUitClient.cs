@@ -120,7 +120,7 @@ namespace Glueware.KlikAanKlikUit.Client
 
         public Task Dim(int roomNo, int deviceNo, int level)
         {
-            return CallForString("apparaatUit", "aRoom", roomNo, "aApp", deviceNo, "dimstand", level);
+            return CallForString("dimapp", "aRoom", roomNo, "aApp", deviceNo, "dimstand", level);
         }
 
         public Task WakeUpDim(int roomNo, int deviceNo)
