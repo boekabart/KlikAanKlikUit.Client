@@ -62,28 +62,40 @@
             var li = $('<table>', { id: 'device' + device.Id }).css({ width: '320px' });
             $('<td>', { text: formatDevice(device), colspan: 3 }).appendTo($('<tr>').appendTo($('<thead>').appendTo(li)));
             var ro = $('<tr>').appendTo(li);
+            
+            var deviceOnAction = device.Dimmable ? 'deviceDim(' + device.Id + ', 16);' : 'deviceOn(' + device.Id + ');';
+            var deviceOffAction = 'deviceOff(' + device.Id + ');';
+
             $('<img>', { src: deviceImageUri(device.Id, 128) })
                 .attr('alt', formatDevice(device))
-                .attr('onclick', 'deviceOn(' + device.Id + ');')
+                .attr('onclick', deviceOnAction)
 				.css({ width: '100%' })
                 .appendTo($('<td>').css({ width: '40%' })
                     .appendTo(ro));
-
             $('<td>', { text: '?', id: 'deviceStatus' + device.Id }).css({ width: '20%' }).css('text-align', 'center').appendTo(ro);
-
             $('<img>', { src: deviceImageUri(device.Id, 32) })
                 .attr('alt', formatDevice(device))
-                .attr('onclick', 'deviceOff(' + device.Id + ');')
+                .attr('onclick', deviceOffAction)
                 .css("-webkit-filter", 'grayscale(50%) brightness(50%)')
                 .css("filter", 'grayscale(50%) brightness(50%)')
 				.css({ width: '100%' })
-                .appendTo($('<td>').css({ width: '40%' })
+                .appendTo($('<td>').css({ width: device.Dimmable?'20%':'40%' })
                     .appendTo(ro));
+            if (device.Dimmable) {
+                $('<img>', { src: deviceImageUri(device.Id, 32) })
+                    .attr('alt', formatDevice(device))
+                    .attr('onclick', 'deviceDim(' + device.Id + ', 7);')
+                    .css("-webkit-filter", 'grayscale(25%) brightness(75%)')
+                    .css("filter", 'grayscale(25%) brightness(75%)')
+                    .css({ width: '100%' })
+                    .appendTo($('<td>').css({ width: '20%' })
+                        .appendTo(ro));
+            }
 
             li.appendTo(devicesDiv);
         }
         function deviceImageUri(deviceId, width) {
-            return 'api/devices/' + deviceId + '/image';
+            //return 'api/devices/' + deviceId + '/image';
             return 'img/devices/' + deviceId + '/image' + deviceId + '.jpg?w=' + width;
         }
         function formatDevice(device) {
@@ -98,6 +110,13 @@
             deviceStatus(devId, '...');
             $.post('api/devices/' + devId + '/on')
             .done(function () { deviceStatus(devId, 'on'); })
+            .fail(function () { deviceStatus(devId, 'err'); });
+        }
+
+        function deviceDim(devId, level) {
+            deviceStatus(devId, '...');
+            $.post('api/devices/' + devId + '/dim/' + level)
+            .done(function () { deviceStatus(devId, level); })
             .fail(function () { deviceStatus(devId, 'err'); });
         }
 
