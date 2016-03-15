@@ -139,8 +139,6 @@ namespace KlikAanKlikUitRest.Controllers
         {
             if (level <= 0)
                 return await DeviceOff(id);
-            if (level > 15)
-                return await DeviceOn(id);
 
             var room = id.RoomNo();
             var device = id.DeviceNo();
