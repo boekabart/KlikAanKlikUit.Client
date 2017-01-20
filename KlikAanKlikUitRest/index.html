@@ -48,9 +48,10 @@
     });
 
     function addRoom(roomsDiv, room) {
-        var roomDiv = $('<div>', { id: 'room' + room.Id })
+        var roomDiv = $('<div>', { id: 'room' + room.RoomNo })
             .appendTo(roomsDiv);
-        $('<h3>', { text: room.Name }).appendTo($('<div>').appendTo(roomDiv));
+        //$('<h3 onclick="roomOff(' + room.RoomNo + ');">', { text: room.Name }).appendTo($('<div>').appendTo(roomDiv));
+        $('<h3>', { text: room.Name, onClick: 'roomOff(' + room.RoomNo + ');' }).appendTo($('<div>').appendTo(roomDiv));
         var devicesDiv = $('<div>').appendTo(roomDiv);
         $.each(room.Devices, function(key, device) {
             addDevice(devicesDiv, device);
@@ -127,6 +128,13 @@
         $.post('api/devices/' + devId + '/off')
             .done(function() { deviceStatus(devId, 'off'); })
             .fail(function() { deviceStatus(devId, 'err'); });
+    }
+
+    function roomOff(roomId) {
+        $.post('api/rooms/' + roomId + '/alloff')
+            //.done(function () { deviceStatus(devId, level); })
+            //.fail(function () { deviceStatus(devId, 'err'); })
+            ;
     }
 
     function allOff() {

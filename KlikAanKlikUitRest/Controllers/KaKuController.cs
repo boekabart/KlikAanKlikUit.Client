@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -20,10 +21,7 @@ namespace KlikAanKlikUitRest.Controllers
 {
     public class KaKuController : ApiController
     {
-        private static KlikAanKlikUitClient Client
-        {
-            get { return new KlikAanKlikUitClient(Settings.Default.Tpc300Host); }
-        }
+        private static KlikAanKlikUitClient Client => new KlikAanKlikUitClient(Settings.Default.Tpc300Host);
 
         [Route("api/devices")]
         public async Task<IEnumerable<Device>> GetAllDevices()
@@ -150,8 +148,8 @@ namespace KlikAanKlikUitRest.Controllers
         public async Task<IHttpActionResult> AllOff(int roomNo)
         {
             var devices = await Client.GetDevices(roomNo);
-            var actions = devices.Select(d => d.TurnOff());
-            await Task.WhenAll(actions);
+            var l = devices.Select(dev => Client.TurnOff(roomNo, dev.DeviceNo));
+            await Task.WhenAll(l);
             return Ok();
         }
 
@@ -159,8 +157,8 @@ namespace KlikAanKlikUitRest.Controllers
         public async Task<IHttpActionResult> AllOn(int roomNo)
         {
             var devices = await Client.GetDevices(roomNo);
-            var actions = devices.Select(d => d.TurnOn());
-            await Task.WhenAll(actions);
+            var l = devices.Select(dev => Client.TurnOff(roomNo, dev.DeviceNo));
+            await Task.WhenAll(l);
             return Ok();
         }
 
