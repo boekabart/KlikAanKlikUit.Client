@@ -146,6 +146,24 @@ namespace KlikAanKlikUitRest.Controllers
             return Ok();
         }
 
+        [Route("api/rooms/{roomNo}/alloff")]
+        public async Task<IHttpActionResult> AllOff(int roomNo)
+        {
+            var devices = await Client.GetDevices(roomNo);
+            var actions = devices.Select(d => d.TurnOff());
+            await Task.WhenAll(actions);
+            return Ok();
+        }
+
+        [Route("api/rooms/{roomNo}/allon")]
+        public async Task<IHttpActionResult> AllOn(int roomNo)
+        {
+            var devices = await Client.GetDevices(roomNo);
+            var actions = devices.Select(d => d.TurnOn());
+            await Task.WhenAll(actions);
+            return Ok();
+        }
+
         [Route("api/alloff")]
         [HttpPost]
         public async Task<IHttpActionResult> AllOff()
