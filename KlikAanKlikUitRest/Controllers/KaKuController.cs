@@ -79,9 +79,12 @@ namespace KlikAanKlikUitRest.Controllers
         }
 
         [Route("api/devices/{id}/image")]
+        [Route("api/devices/{id}/image.bmp")]
+        [Route("api/devices/{id}/image.jpg")]
+        [Route("api/devices/{id}/image{ignoreMe}")]
         [Route("api/devices/{id}/image{ignoreMe}.bmp")]
         [Route("api/devices/{id}/image{ignoreMe}.jpg")]
-        public async Task<HttpResponseMessage> GetDeviceImage(int id, string ignoreMe)
+        public async Task<HttpResponseMessage> GetDeviceImage(int id, string ignoreMe = null)
         {
             var room = id.RoomNo();
             var device = id.DeviceNo();
