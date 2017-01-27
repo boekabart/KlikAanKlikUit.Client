@@ -157,7 +157,7 @@ namespace KlikAanKlikUitRest.Controllers
         public async Task<IHttpActionResult> AllOn(int roomNo)
         {
             var devices = await Client.GetDevices(roomNo);
-            var l = devices.Select(dev => Client.TurnOff(roomNo, dev.DeviceNo));
+            var l = devices.Select(dev => Client.TurnOn(roomNo, dev.DeviceNo));
             await Task.WhenAll(l);
             return Ok();
         }
